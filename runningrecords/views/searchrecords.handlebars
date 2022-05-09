@@ -1,1 +1,8 @@
-SEARCHRECORDS
+<br><br><br><br><h1>Search records</h1><br>
+{{#if error}}<span>{{error}}</span>{{/if}}
+<form class="form-inline" method="POST" action="/record/search">
+    <div class="form-group">
+        <input type="text" name="id" class="form-control" placeholder="Search Records by ID" />
+    </div>
+    <input type="submit" class="btn btn-primary" value="Search" />
+</form>
