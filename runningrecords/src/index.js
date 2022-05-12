@@ -4,6 +4,7 @@ const path = require('path');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const redis = require('redis');
+const recordRouter = require('./routes/recordroutes')
 
 // Create Redis Client
 const rclient = redis.createClient();
@@ -35,70 +36,16 @@ app.use(bodyParser.urlencoded({extended:false}));
 // methodOverride
 app.use(methodOverride('_method'));
 
-//Search page
-app.get('/', function(req, res, next){
-    res.render('searchrecords');
-});
+app.use(recordRouter)
 
-//Process Search
-app.post('/record/search', async function(req, res, next){
-    let id = req.body.id;
-
-    await rclient.hgetall(id, (err, obj) => {
-        if(!obj){
-            res.render('searchrecords', {
-                error: 'Record does not exist'
-            });
-        } else {
-            obj.id = id;
-            res.render('details', {
-                record: obj
-            });
-        }
-    });
-
-});
-
-// Add Record 
-app.get('/record/add', function (req, res, next) {
-    res.render('addrecord');
-});
-
-// Process Add Record 
-app.post('/record/add', async function (req, res, next) {
-    let id = req.body.id;
-    let distance = req.body.distance;
-    let first_name = req.body.first_name;
-    let last_name = req.body.last_name;
-    let year = req.body.year;
-    let time = req.body.time;
-    let location = req.body.location;
-
-    await rclient.hmset(id, [
-        'distance', distance,
-        'first_name', first_name,
-        'last_name', last_name,
-        'year', year,
-        'time', time,
-        'location',location
-    ], function (err, reply) {
-        if (err) {
-            console.log(err);
-        }
-        console.log(reply);
-        res.redirect('/');
-    });
-});
-
-// Delete Record 
-app.delete('/record/delete/:id', function (req, res, next) {
-    rclient.del(req.params.id);
-    res.redirect('/');
-});
-
-
-app.listen(port, function(){
+const server = app.listen(port, function(){
     console.log("Server listening to port " +port)
 });
 
+function stop() {
+    server.close();
+}
 
+
+module.exports = server;
+module.exports.stop = stop;
