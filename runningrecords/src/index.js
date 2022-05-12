@@ -7,7 +7,13 @@ const redis = require('redis');
 const recordRouter = require('./routes/recordroutes')
 
 // Create Redis Client
-const rclient = redis.createClient();
+const rclient = redis.createClient({
+  url: process.env.REDIS_URL,
+  socket: {
+    tls: true,
+    rejectUnauthorized: false
+  }
+});
 
 rclient.on("error", function (err) {
     console.error("Error encountered: ", err);

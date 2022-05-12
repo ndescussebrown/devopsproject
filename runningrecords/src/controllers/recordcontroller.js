@@ -1,6 +1,12 @@
 const redis = require('redis');
 
-const rclient = redis.createClient();
+const rclient = redis.createClient({
+  url: process.env.REDIS_URL,
+  socket: {
+    tls: true,
+    rejectUnauthorized: false
+  }
+});
 
 const record_search_get = (req,res) => {
     res.render('searchrecords');
