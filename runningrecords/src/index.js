@@ -26,7 +26,7 @@ rclient.on("connect", function() {
 //rclient.connect(); // connect to the server here! Only valid from versions 4+ of redis
 
 // Set port
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 // Initialise app
 const app = express();
