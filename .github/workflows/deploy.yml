@@ -16,5 +16,5 @@ jobs:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: "runningrecords"
           heroku_email: "nathalie.descusse@gmail.com"
-          appdir: userapi
+          appdir: runningrecords
 
