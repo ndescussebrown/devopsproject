@@ -1,0 +1,30 @@
+
+#- role: ansible-nodejs-apps
+ # apps:
+  #  enabled:
+   #   - "/srv/runningrecords/"
+      
+      
+- hosts: all
+  become: yes
+
+  tasks:
+  - name: Install EPEL repo
+    yum:
+      name: epel-release
+      state: present
+
+  - name: Install Ansible
+    yum:
+      name: ansible
+      state: present
+  
+  - name: Install git, nmap and net-tools 
+    yum:
+      state: present
+      name:
+        - git
+        - nmap
+        - net-tools
+  
+      
