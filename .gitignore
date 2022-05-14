@@ -108,3 +108,6 @@ dist
 
 # Database
 dump.rdb
+
+# Vagrant
+.vagrant/
