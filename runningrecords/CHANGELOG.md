@@ -1,3 +1,18 @@
+- ci: add Dockerfile and docker-compose yml files for container orchestration
+- chore: added .vagrant/ to gitignore file
+- docs: added images files to store screenshots related to the project
+- docs: updating of README.md to cover creation of web app, CI/CD pipeline and iac
+- ci: added iac files
+- ci: added port process.env.PORT to fix Heroku application error
+- ci: change configuration to try and succesfully connect to Heroku Redis
+- fix: fixed wrong app dir for Heroku deployment
+- ci: added workflows for deployment to Heroku
+- test: added API tests
+- feat: added update functionality
+- refactor: complete refactoring of code to MVC structure
+- build: added some dependencies required for testing
+- test: added configuration test
+- docs: added CHANGELOG.md to repo
 - style: minor layout change
 - feat: added 'add' and 'delete' functionalities to the app
 - feat: added search functionality and the ability to visualise records from redis
