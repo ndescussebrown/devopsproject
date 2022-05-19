@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webservice
+  labels:
+    app: runningrecords
+    component: webservice
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: runningrecords
+      component: webservice
+  strategy:
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: runningrecords
+        component: webservice
+        redeploy: '1'
+    spec:
+      containers:
+      - name: webservice
+        image: ndescusseb77/runningrecords:runningrecords
+        env:
+          - name: REDIS_SERVER_IP
+            value: "redis-server"
+        ports:
+        - name: webservice 
+          containerPort: 3000
+          protocol: TCP
+
