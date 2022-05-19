@@ -33,12 +33,12 @@ spec:
           name: http
           protocol: TCP
         # data volume where redis writes data
-        #volumeMounts:
-        #- name: data
-        #  mountPath: /run/desktop/mnt/host/c/data
-        #  readOnly: false
-      #volumes:
-      #- name: data
-      #  persistentVolumeClaim:
-      #    claimName: redis-data
+        volumeMounts:
+        - name: data
+          mountPath: /run/desktop/mnt/host/c/data
+          readOnly: false
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: redis-data
           
