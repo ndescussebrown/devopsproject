@@ -11,12 +11,13 @@ const app = express();
 
 // Create Redis Client
 const rclient = redis.createClient({
-    // url: process.env.REDIS_URL,  // These are the parameters required for deployment with Heroku
-    // socket: {
-      // tls: true,
-      // rejectUnauthorized: false
-    // },
-    host:'redis-server', port: 6379 // These are the parameters required for orchestration with docker-compose
+     url: process.env.REDIS_URL,  // These are the parameters required for deployment with Heroku
+     socket: {
+       tls: true,
+       rejectUnauthorized: false
+     }
+	 //,
+    //host:'redis-server', port: 6379 // These are the parameters required for orchestration with docker-compose
 });
 
 rclient.on("error", function (err) {
