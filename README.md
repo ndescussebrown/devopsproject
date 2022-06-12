@@ -1,6 +1,9 @@
 # devopsproject
 
-This project was created for the DSTI DevOps class project assignment. 
+Subject: This project was created for the DSTI DevOps class project assignment. 
+Author: Nathalie Descusse-Brown
+Created: 9th May 2022
+Updated: 9th July 2022
 
 ## Project goals
 
@@ -15,6 +18,15 @@ The goals of the project are to cover the following aspects:
 ### 8. Implement Monitoring to your containerized application
 ### 9. Document your project
 
+
+## Environment
+
+OS: Windows 11 Home/Pro
+Linux SubSystem: WSL
+VM: First Ubuntu Desktop 20.04.4 LTS until machine crashed, then replaced by Vagrant Centos/7.
+Vagrant: v2.2.6
+Node.js: v14.19.2
+redis: v3.1.2
 
 ## 1. Create a web application
 
