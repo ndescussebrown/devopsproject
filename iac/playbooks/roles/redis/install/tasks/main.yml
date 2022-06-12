@@ -1,0 +1,22 @@
+---
+- name: Install EPEL repo
+  yum:
+    name: epel-release
+    state: present
+    
+- name: Ensure Redis is present
+  yum: pkg=redis state=latest
+  become: true
+
+- name: Ensure Redis is started
+  service: name=redis state=started enabled=yes
+  become: true
+
+# - name: Ensure Redis Configuration
+  # template: src=redis.conf.j2 dest=/etc/redis.conf owner=root group=root mode=0644
+  # become: true
+  # notify: Redis Restart
+
+- name: Redis Restart
+  service: name=redis state=restarted enabled=yes
+  become: true

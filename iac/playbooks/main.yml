@@ -1,30 +1,23 @@
-
-#- role: ansible-nodejs-apps
- # apps:
-  #  enabled:
-   #   - "/srv/runningrecords/"
-      
-      
-- hosts: all
-  become: yes
-
+---
+- name: misc task on Centos/7 instance
+  hosts: "*"
+  vars:
+    ansible_python_interpreter: /usr/bin/python
   tasks:
-  - name: Install EPEL repo
-    yum:
-      name: epel-release
-      state: present
+    - debug: var=app_server
+    
+- name: deploy
+  hosts: app_server
+  become: true
+  vars:
+    redis_port: 6379
+    redis_databases: 1
+    node_version: 6.1.0
 
-  - name: Install Ansible
-    yum:
-      name: ansible
-      state: present
-  
-  - name: Install git, nmap and net-tools 
-    yum:
-      state: present
-      name:
-        - git
-        - nmap
-        - net-tools
-  
-      
+  roles:
+  - role: redis/install
+    tags: install
+  - role: nodejs/install
+    tags: install
+    
+

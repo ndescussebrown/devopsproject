@@ -1,0 +1,13 @@
+---
+- name: Download node.js package
+  get_url: url=https://deb.nodesource.com/setup_14.x dest=/tmp/install.sh
+
+- name: Install node.js
+  yum:
+    name: nodejs
+    state: present
+
+- name: Install npm
+  yum:
+    name: npm
+    state: present
