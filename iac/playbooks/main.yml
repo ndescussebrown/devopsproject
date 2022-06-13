@@ -13,11 +13,14 @@
     redis_port: 6379
     redis_databases: 1
     node_version: 6.1.0
+    repo_path: /vagrant/runningrecords
 
   roles:
   - role: redis/install
     tags: install
   - role: nodejs/install
+    tags: install
+  - role: nodejs-app/install
     tags: install
     
 
