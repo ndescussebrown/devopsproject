@@ -109,8 +109,7 @@ The successful deployment was checked by opening a browser and checking URK http
 
 ![App_deployed_dockercompose](images/app_deployedwith_dockercompose.jpg)
 
-
-![Docker_compose](images/docker_build.jpg)
+![Docker_compose_push](images/docker_push_docker-compose.jpg)
 
 ## 6. Make docker orchestration using Kubernetes
 
@@ -120,7 +119,7 @@ The successful deployment was checked by opening a browser and checking URK http
 
 ## 9. Issues encountered
 
-# When running vagrant
+### When running vagrant
 
 I followed the following steps to run vagrant from Ubuntu 20.04.4 LTS from Windows 11:
 1. Launch Ubuntu for Windows
@@ -151,7 +150,7 @@ The issue has been reported to the Adaltas repo: [issue in Adaltas repo](https:/
 Resolution: I switched from Ubuntu to wsl on Powershell and outcome is described in Section 3.
 
 
-# With running Ubuntu for Windows
+### With running Ubuntu for Windows
 
 I experience a 'blue screen crash' that subsequently caused some issues when running Kubernetes on Ubuntu 20.04.4 LTS for Windows with Virtualbox for the istio part of the project. This issue is further described in the Adaltas report: [issue in Adaltas repo](https://github.com/adaltas/dsti-devops-2022-spring/issues/5). Despite subsequent efforts, no solution was found so I switched to using vagrant for sake of efficiency.
 
@@ -160,5 +159,5 @@ I experience a 'blue screen crash' that subsequently caused some issues when run
 
 A number of improvements could be made to this project, that were not implemented at this stage due to lack of time. Nonetheless, I believe they would stroingly benefit the project if implemented at a later stage.
 
-# Record ID
+### Record ID
 Currently there are no restriction made on the format of the recordID each time a new record is entered by a user, which will lead to issues, if no chaos. Ideally the recordID should be a primary key that would self-increment each time a new record is created.
