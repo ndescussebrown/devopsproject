@@ -8,15 +8,16 @@ Updated: 9th July 2022
 ## Project goals
 
 The goals of the project are to cover the following aspects:
-### 1. Create a web application
-### 2. Apply CI/CD pipeline
-### 3. Configure and provision a virtual environment and run your application using the IaC approach
-### 4. Build Docker image of your application
-### 5. Make container orchestration using Docker Compose
-### 6. Make docker orchestration using Kubernetes
-### 7. Make a service mesh using Istio
-### 8. Implement Monitoring to your containerized application
-### 9. Document your project
+1. Create a web application
+2. Apply CI/CD pipeline
+3. Configure and provision a virtual environment and run your application using the IaC approach
+4. Build Docker image of your application
+5. Make container orchestration using Docker Compose
+6. Make docker orchestration using Kubernetes
+7. Make a service mesh using Istio
+8. Implement Monitoring to your containerized application
+9. Issues encountered
+10. Proposed improvements
 
 
 ## Environment
@@ -71,13 +72,14 @@ I followed the following steps:
 6. Customize the Vagrantfile to make use of synced folder (to sync with my runningrecords app folder), run Ansible locally and make use of Ansible playbooks.
 7. Launch vagrant VM: ```vagrant up```
 8. I modified my playbooks each in turn to install node.js and redis and deploy app. Everytime I finished with a playbook I used the command ```vagrant upload playbooks /vagrant/playbooks app_server to update playbooks``` on vagrant, followed by ```vagrant provision```
+9. I subsequently checked that my app was indeed running by opening a browser and checking URL http://localhost:8080
 
 
 ![Ansible_provisioning](images/Ansible_provisioning2.jpg)
 
-![Ansible_runningapp](images/Ansible_runningapp)
+![Ansible_runningapp](images/Ansible_runningapp.jpg)
 
-![Ansible_runningapp2](images/Ansible_runningapp2)
+![Ansible_runningapp2](images/Ansible_runningapp2.jpg)
 
 ## 4. Build Docker image of your application
 
@@ -87,9 +89,28 @@ The Dockerimage was built from the location of the Dockerfile (within my running
 
 ```docker build -t runningrecords .```
 
+The image was subsequently pushed to Docker Hub.
+
 ![Docker_build](images/docker_build.jpg)
 
+![Docker_push](images/docker_push_dockerimage.jpg)
+
+![Docker_hub](images/dockerhub.jpg)
+
 ## 5. Make container orchestration using Docker Compose
+
+My application makes use of redis database, so I need a way to enable communication between the redis image and my Docker app image. This can be done via Docker Compose.
+
+In order to implement this I built a docker-compose yaml file that calls the redis:alpine image and my runningrecords app image. Subsequently running the command ```docker compose up``` enables to launch the app on port 7777.
+
+The successful deployment was checked by opening a browser and checking URK http://localhost:7777/
+
+![Docker_compose_up](images/docker_compose_up.jpg)
+
+![App_deployed_dockercompose](images/app_deployedwith_dockercompose.jpg)
+
+
+![Docker_compose](images/docker_build.jpg)
 
 ## 6. Make docker orchestration using Kubernetes
 
@@ -97,21 +118,21 @@ The Dockerimage was built from the location of the Dockerfile (within my running
 
 ## 8. Implement Monitoring to your containerized application
 
-##9. Issues encountered
+## 9. Issues encountered
 
 # When running vagrant
 
 I followed the following steps to run vagrant from Ubuntu 20.04.4 LTS from Windows 11:
 1. Launch Ubuntu for Windows
-2. Navigate to my iac folder (in my instance via **cd /mnt/c/users/natha/DSTI/DevOps/devopsproject/iac**)
+2. Navigate to my iac folder (in my instance via ```cd /mnt/c/users/natha/DSTI/DevOps/devopsproject/iac```)
 3. Configure vagrant for wsl by running the following commands:
 	- export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1" export
 	- PATH="$PATH:/mnt/c/Program Files/Oracle/VirtualBox" export
 	- VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH=/mnt/c/users/natha/DSTI/DevOps/devopsproject/runningrecords
-4.	Add vbgust plugin: *vagrant plugin install vagrant-vbguest*
-5.  Create vagrant box: *vagrant box add centos/7*
-6.  Initialise vagrant: *vagrant init centos/7*
-7.  Launch vagrant VM: *vagrant up*, but this is when I encountered the below issue.
+4.	Add vbguest plugin: ```vagrant plugin install vagrant-vbguest```
+5.  Create vagrant box: ```vagrant box add centos/7```
+6.  Initialise vagrant: ```vagrant init centos/7```
+7.  Launch vagrant VM: ```vagrant up```, but this is when I encountered the below issue.
 
 Issue:
 I got this error message in the console when running *vagrant up*:
@@ -128,3 +149,16 @@ My node.js app is location in folder:  C:/users/natha/DSTI/DevOps/devopsproject/
 The issue has been reported to the Adaltas repo: [issue in Adaltas repo](https://github.com/adaltas/dsti-devops-2022-spring/issues/4)
 
 Resolution: I switched from Ubuntu to wsl on Powershell and outcome is described in Section 3.
+
+
+# With running Ubuntu for Windows
+
+I experience a 'blue screen crash' that subsequently caused some issues when running Kubernetes on Ubuntu 20.04.4 LTS for Windows with Virtualbox for the istio part of the project. This issue is further described in the Adaltas report: [issue in Adaltas repo](https://github.com/adaltas/dsti-devops-2022-spring/issues/5). Despite subsequent efforts, no solution was found so I switched to using vagrant for sake of efficiency.
+
+
+## 10. Proposed improvements / Technical debt
+
+A number of improvements could be made to this project, that were not implemented at this stage due to lack of time. Nonetheless, I believe they would stroingly benefit the project if implemented at a later stage.
+
+# Record ID
+Currently there are no restriction made on the format of the recordID each time a new record is entered by a user, which will lead to issues, if no chaos. Ideally the recordID should be a primary key that would self-increment each time a new record is created.
