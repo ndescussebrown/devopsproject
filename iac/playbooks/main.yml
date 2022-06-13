@@ -22,5 +22,7 @@
     tags: install
   - role: nodejs-app/install
     tags: install
+  - role: nodejs-app/healthchecks
+    tags: check
     
 

@@ -1,0 +1,14 @@
+---
+- name: Check RunningRecords health
+  become: false
+  uri:
+    url: http://192.168.33.10:3000
+    return_content: yes
+  # Register the output of the module in a variable
+  register: runningrecords_health
+
+- name: Print RunningRecords health
+  debug:
+    msg: "{{ runningrecords_health.content }}"
+
+
