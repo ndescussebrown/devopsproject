@@ -57,14 +57,58 @@ GitHub Actions was used to deploy the model to Heroku, and the fully functioning
 
 I then set up Vagrant in order to launch a VM to run my app. 
 
-I following the following steps to run vagrant from Ubuntu 20.04.4 LTS from Windows 11:
+Because of the issue with the below, I tried another approach and ended up succesfully running vagrant with Windows Powershell.
+
+I followed the following steps:
+1. Launch wsl from Powershell
+2. Navigate to my iac folder (in my instance via ```cd C:\Users\natha\DSTI\DevOps\devopsproject\iac```)
+3. Configure vagrant for wsl by running the following commands:
+	- export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1" export
+	- PATH="$PATH:/mnt/c/Program Files/Oracle/VirtualBox" export
+	- VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH=/mnt/c/users/natha/DSTI/DevOps/devopsproject/runningrecords
+4. Create vagrant box: ```vagrant box add centos/7```
+5. Initialise vagrant: ```vagrant init centos/7```
+6. Customize the Vagrantfile to make use of synced folder (to sync with my runningrecords app folder), run Ansible locally and make use of Ansible playbooks.
+7. Launch vagrant VM: ```vagrant up```
+8. I modified my playbooks each in turn to install node.js and redis and deploy app. Everytime I finished with a playbook I used the command ```vagrant upload playbooks /vagrant/playbooks app_server to update playbooks``` on vagrant, followed by ```vagrant provision```
+
+
+![Ansible_provisioning](images/Ansible_provisioning2.jpg)
+
+![Ansible_runningapp](images/Ansible_runningapp)
+
+![Ansible_runningapp2](images/Ansible_runningapp2)
+
+## 4. Build Docker image of your application
+
+I wrote a Dockerfile enabling me to run my app on port 3000 (which is the port node.js runs on)
+
+The Dockerimage was built from the location of the Dockerfile (within my runningrecords app folder) with the following command:
+
+```docker build -t runningrecords .```
+
+![Docker_build](images/docker_build.jpg)
+
+## 5. Make container orchestration using Docker Compose
+
+## 6. Make docker orchestration using Kubernetes
+
+## 7. Make a service mesh using Istio
+
+## 8. Implement Monitoring to your containerized application
+
+##9. Issues encountered
+
+# When running vagrant
+
+I followed the following steps to run vagrant from Ubuntu 20.04.4 LTS from Windows 11:
 1. Launch Ubuntu for Windows
 2. Navigate to my iac folder (in my instance via **cd /mnt/c/users/natha/DSTI/DevOps/devopsproject/iac**)
 3. Configure vagrant for wsl by running the following commands:
 	- export VAGRANT_WSL_ENABLE_WINDOWS_ACCESS="1" export
 	- PATH="$PATH:/mnt/c/Program Files/Oracle/VirtualBox" export
 	- VAGRANT_WSL_WINDOWS_ACCESS_USER_HOME_PATH=/mnt/c/users/natha/DSTI/DevOps/devopsproject/runningrecords
-4.	Add vbgust plugin: *vagrant plugin install vagrant-vbgues*
+4.	Add vbgust plugin: *vagrant plugin install vagrant-vbguest*
 5.  Create vagrant box: *vagrant box add centos/7*
 6.  Initialise vagrant: *vagrant init centos/7*
 7.  Launch vagrant VM: *vagrant up*, but this is when I encountered the below issue.
@@ -83,14 +127,4 @@ My node.js app is location in folder:  C:/users/natha/DSTI/DevOps/devopsproject/
 
 The issue has been reported to the Adaltas repo: [issue in Adaltas repo](https://github.com/adaltas/dsti-devops-2022-spring/issues/4)
 
-## 4. Build Docker image of your application
-
-## 5. Make container orchestration using Docker Compose
-
-## 6. Make docker orchestration using Kubernetes
-
-## 7. Make a service mesh using Istio
-
-## 8. Implement Monitoring to your containerized application
-
-## 9. Document your project
+Resolution: I switched from Ubuntu to wsl on Powershell and outcome is described in Section 3.
