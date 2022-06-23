@@ -25,7 +25,8 @@ The goals of the project are to cover the following aspects:
 OS: Windows 11 Home/Pro
 Linux SubSystem: WSL
 VM: First Ubuntu Desktop 20.04.4 LTS until machine crashed, then replaced by Vagrant Centos/7.
-Vagrant: v2.2.6
+Vagrant on Ubuntu for Windows: v2.2.6
+Vagrant on Windows: v2.2.19
 Node.js: v14.19.2
 redis: v3.1.2
 
@@ -73,6 +74,7 @@ I followed the following steps:
 7. Launch vagrant VM: ```vagrant up```
 8. I modified my playbooks each in turn to install node.js and redis and deploy app. Everytime I finished with a playbook I used the command ```vagrant upload playbooks /vagrant/playbooks app_server to update playbooks``` on vagrant, followed by ```vagrant provision```
 9. I subsequently checked that my app was indeed running by opening a browser and checking URL http://localhost:8080
+10. I then added a healthcheck and from vagrant machine (accessed with ```vagrant ssh```) I ran ```ansible-playbook /vagrant/playbooks/main.yml --tags check -i /tmp/vagrant-ansible/inventory/vagrant_ansible_local_inventory```.
 
 
 ![Ansible_provisioning](images/Ansible_provisioning2.jpg)
@@ -80,6 +82,8 @@ I followed the following steps:
 ![Ansible_runningapp](images/Ansible_runningapp.jpg)
 
 ![Ansible_runningapp2](images/Ansible_runningapp2.jpg)
+
+![Ansible_healthcheck](images/ansible_app_healthcheck.jpg)
 
 ## 4. Build Docker image of your application
 
@@ -113,7 +117,53 @@ The successful deployment was checked by opening a browser and checking URK http
 
 ## 6. Make docker orchestration using Kubernetes
 
+In order to deploy my app with Kubernetes with Ubuntu LTS 20.4.4 for Desktop, I followed the following steps:
+1. I logged in with docker login
+2. I installed minikube
+3. I created deployment and service yaml files for redis and my app, and also a persistemvolumeclaim for redis.
+4. I then checked that my redis pod was responding:
+
+![Redis_pod_responding](images/redis_pod_responding.jpg)
+
+5. After encountering some issues associated with wsl2 (https://stackoverflow.com/questions/71384252/cannot-access-deployed-services-when-minikube-cluster-is-installed-in-wsl2), I ran ```minikube start --ports=127.0.0.1:31110:31110```
+
+6. I re-ran my -apply for both redis and app:
+
+![Kubernetes_deployment](images/kubernetes_deploy.jpg)
+
+7. I then checked that my app was indeed deployed:
+
+![Kubernetes_app](images/kubernetes_app_deployment.jpg)
+
 ## 7. Make a service mesh using Istio
+
+Because of issues with Ubuntu (see Section 9), I decided to use vagrant to run istio.
+
+```
+vagrant init centos/7
+vagrant up
+vagrant ssh
+```
+Once in vagrant machine, I installed minikube:
+
+```
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+```
+
+I then checked minikube was indeed installed by checking version, which happened to be minikube version: v1.25.2.
+
+In order to use virtualbox as my minikube driver I had to install virtualbox on vagrant by implementing the following: https://phoenixnap.com/kb/how-to-install-virtualbox-centos-7
+
+Faced with the following message when running ```minikube start --ports=127.0.0.1:31110:31110``` 'Exiting due to RSRC_INSUFFICIENT_CORES: Requested cpu count 2 is greater than the available cpus of 1', I add the following lines to my Vagrantfile:
+
+```
+  config.vm.provider "virtualbox" do |vb|
+  # Customize the amount of memory on the VM:
+    vb.memory = "2048"
+	vb.cpus = 2
+  end
+```
 
 ## 8. Implement Monitoring to your containerized application
 
@@ -153,6 +203,10 @@ Resolution: I switched from Ubuntu to wsl on Powershell and outcome is described
 ### With running Ubuntu for Windows
 
 I experience a 'blue screen crash' that subsequently caused some issues when running Kubernetes on Ubuntu 20.04.4 LTS for Windows with Virtualbox for the istio part of the project. This issue is further described in the Adaltas report: [issue in Adaltas repo](https://github.com/adaltas/dsti-devops-2022-spring/issues/5). Despite subsequent efforts, no solution was found so I switched to using vagrant for sake of efficiency.
+
+### Running minikube with vagrant
+
+xxxx
 
 
 ## 10. Proposed improvements / Technical debt
