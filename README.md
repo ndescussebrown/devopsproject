@@ -30,6 +30,11 @@ Vagrant on Windows: v2.2.19
 Node.js: v14.19.2
 redis: v3.1.2
 
+## How to Use the runningrecords app
+
+Just enter a record number in the format 'record00x' where x is a single digit, and press 'search.
+
+
 ## 1. Create a web application
 
 The application created is a database of running records for most common race distances for men and women categories.
@@ -47,6 +52,8 @@ Automatic tests for the application were added to cover the following:
 - API
 
 Unit tests as such were not created as I couldn't figure out how to do them with my controller definition.
+
+I chose to use node.js for the application as I only had knowledge of R and Python before starting the MSc and I wanted to make it challenging and use this project as an opportunity to learn new skills. I followed a number of tutorials (e.g. https://www.youtube.com/watch?v=9S-mphgE5fA) to build a node.js app that connected to redis and followed an MVC model. At this stage, I wanted to build an MVP, and I hope to improve the app in the future with more functionalities (see Section 10).
 
 ## 2. Apply CI/CD pipeline
 
@@ -137,33 +144,90 @@ In order to deploy my app with Kubernetes with Ubuntu LTS 20.4.4 for Desktop, I 
 
 ## 7. Make a service mesh using Istio
 
-Because of issues with Ubuntu (see Section 9), I decided to use vagrant to run istio.
+Because of issues with Ubuntu and subsequentl vagrant on Windows 11 Pro (see Section 9), I decided to borrow a Mac laptop and attempt to finish the project using that machine.
+
+Environment:
+Mac OS
+Kubernetes v1.24.1
+Docker 20.10.16
+
+For this part, I had to create another version of my app. I decided to change the background of my app to make it visually very obvious that there were different versions of the same app.
+
+I had already created the following manifests for the Kubernetes part of the project (see Section 8), so I just had to create the runningrecords-gateway.yml.
+
+The gateway file enables accessing my application from outside the cluster. It also contains a load balancing rule service that defines what percentage of the traffic to send to one version of my app versus the other version.
+
+I started the minikube cluster with only 3.5Gb of memory due to my machine and hence my Docker engine constraints (see Section 9).
+
+The steps taken are as followed:
 
 ```
-vagrant init centos/7
-vagrant up
-vagrant ssh
-```
-Once in vagrant machine, I installed minikube:
+# Environment:
+minikube v1.26.0 on Darwin 12.4
 
-```
-curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-sudo install minikube-linux-amd64 /usr/local/bin/minikube
+# Install minikube and launchset up istio
+sudo install minikube-darwin-amd64 /usr/local/bin/minikube
+minikube start --driver=virtualbox --ports=127.0.0.1:31110:31110 --memory=4000
+
+# Set up istio
+curl -L https://istio.io/downloadIstio | sh -
+export PATH=$PWD/bin:$PATH
+istioctl install --set profile=demo -y
+kubectl label namespace default istio-injection=enabled
+
+# Create two versions of my app, v1 and v2, stored in different folders runningrecords-v1 and runningrecords-v2
+
+# Create deployment and services
+kubectl apply -f redis-deployment.yml
+kubectl apply -f redis-service.yml
+kubectl apply -f redis-volume.yml
+kubectl apply -f runningrecords-deployment.yml
+kubectl apply -f runningrecords-service.yml
+
+# Creating the gateway to expose app to outside of cluster
+kubectl apply -f runningrecords-gateway.yml
+
+# Checking there are no issues with the config
+istioctl analyze
+
+# Opening a new command line window and running following
+minikube tunnel
+
+# Checking everything is correctly setup
+export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
+export SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="https")].port}')
+echo "$INGRESS_HOST"
+echo "$INGRESS_PORT"
+echo "$SECURE_INGRESS_PORT"
+export GATEWAY_URL=$INGRESS_HOST:$INGRESS_PORT
+echo "$GATEWAY_URL"
+
+# Check ip
+kubectl get svc -n istio-system
+
+# Adding Kiala addon
+kubectl apply -f samples/addons
+kubectl rollout status deployment/kiali -n istio-system
+
+# Launching Kiali dashboard
+istioctl dashboard kiali
 ```
 
-I then checked minikube was indeed installed by checking version, which happened to be minikube version: v1.25.2.
+![istio_deployment](images/istio-deployment.jpg)
 
-In order to use virtualbox as my minikube driver I had to install virtualbox on vagrant by implementing the following: https://phoenixnap.com/kb/how-to-install-virtualbox-centos-7
+![istio_appv1](images/istio-deployment-appv1.jpg)
 
-Faced with the following message when running ```minikube start --ports=127.0.0.1:31110:31110``` 'Exiting due to RSRC_INSUFFICIENT_CORES: Requested cpu count 2 is greater than the available cpus of 1', I add the following lines to my Vagrantfile:
+![istio_appv2](images/istio-deployment-appv2.jpg)
 
-```
-  config.vm.provider "virtualbox" do |vb|
-  # Customize the amount of memory on the VM:
-    vb.memory = "2048"
-	vb.cpus = 2
-  end
-```
+
+I wanted to try the raw tcp protocol and visualize this traffic alongside more typical http traffic:
+- tcp traffic was generated by simply accessing the browser from my machine as my manifest were designed for tcp protocol
+- http: I generated http traffic by running the command ```for i in $(seq 1 100); do curl -s -o /dev/null "http://$GATEWAY_URL"; done```
+
+Both types of traffic can be visualized in the kiali dashboard (tcp repsented in blue and http in green):
+
+![kiali](images/kiali-traffic_visualization.jpg)
 
 ## 8. Implement Monitoring to your containerized application
 
@@ -206,7 +270,42 @@ I experience a 'blue screen crash' that subsequently caused some issues when run
 
 ### Running minikube with vagrant
 
-xxxx
+```
+vagrant init centos/7
+vagrant up
+vagrant ssh
+```
+Once in vagrant machine, I installed minikube:
+
+```
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+```
+
+I then checked minikube was indeed installed by checking version, which happened to be minikube version: v1.25.2.
+
+In order to use virtualbox as my minikube driver I had to install virtualbox on vagrant by implementing the following: https://phoenixnap.com/kb/how-to-install-virtualbox-centos-7
+
+Faced with the following message when running ```minikube start --ports=127.0.0.1:31110:31110``` 'Exiting due to RSRC_INSUFFICIENT_CORES: Requested cpu count 2 is greater than the available cpus of 1', I added the following lines to my Vagrantfile:
+
+```
+  config.vm.provider "virtualbox" do |vb|
+  # Customize the amount of memory on the VM:
+    vb.memory = "2048"
+	vb.cpus = 2
+  end
+```
+
+I updated the number of CPUs and re-ran but then I encountered another issue in that the boot of my VM (when running ```vagrant up```) hung when reaching the 'ssh private key' stage of the boot. 
+I researched this issue heavily and after a number of hours I came across the following thread: https://forums.virtualbox.org/viewtopic.php?f=6&t=105315
+
+I implemented the fixes suggested and it appeared initially to work in that I could now ssh to my virtual machine.
+
+However, when trying to then run minikube, I encountered the following issue:
+
+![Minikube timeout on Vagrant](images/vagrant_minikube_timeout.jpg)
+
+No solution was found despite days of significant effort in doing so. I decided to borrow a Mac to try and complete the project.
 
 
 ## 10. Proposed improvements / Technical debt
@@ -215,3 +314,13 @@ A number of improvements could be made to this project, that were not implemente
 
 ### Record ID
 Currently there are no restriction made on the format of the recordID each time a new record is entered by a user, which will lead to issues, if no chaos. Ideally the recordID should be a primary key that would self-increment each time a new record is created.
+
+### App versions
+In the future, for the istio part, I will consider making further modifications to the second version of my app to make it more interesting. This time round I wanted to focus on the istio component so decided to keep it the differences minimal whilst obvious to the viewer.
+
+### Docker Desktop memory 
+Due to the memory issue encountered when trying to launch kiali dashboard, I had to up the memory on Docker Desktop from the 4Gb it was running on to 5Gb. I could not do much more than than as my borrowed Mac machine was only 8Gb.
+
+
+### Environment
+Given the number of issues encountered with my Windows machine and having to constantly try different fixes as documented above, there is little consistency in versions used throughout the project, which makes it messy, although I tried to document the modifications made as best as possible. In future I will perform everything on a Mac to try and minimise the potential occurrences of issues.
