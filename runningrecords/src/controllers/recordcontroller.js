@@ -101,8 +101,8 @@ const record_addupdate = async function (req, res, next) {
 const record_delete = function (req, res, next) {
     if (!req.params.id) { return callback(new Error("Invalid record"), null) }
     rclient.del(req.params.id);
-    return res.status(200);
     res.redirect('/');
+    return res.status(200);
 }
 
 module.exports = {
