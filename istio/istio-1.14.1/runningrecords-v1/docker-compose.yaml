@@ -1,0 +1,12 @@
+# version of docker-compose
+version: '3.9'
+# 'services' are equivalent to 'containers'
+services:
+  redis-server:
+    # Use Docker Hub base image 'redis:alpine'
+    image: 'redis:alpine'
+  node-app:
+    build: .
+    # Specify an array of ports to map
+    ports:
+      - "7777:3000"

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: runningrecords-service
+spec:
+  labels:
+    app: runningrecords
+    component: webservice
+spec:
+  selector:
+    app: runningrecords
+    component: webservice
+  ports:
+    - protocol: TCP
+      port: 3000
+      name: tcp

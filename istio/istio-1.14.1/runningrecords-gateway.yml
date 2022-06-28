@@ -1,0 +1,65 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: runningrecords-gateway
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: runningrecords-client
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - runningrecords-gateway
+  http:
+  - match:
+    - uri:
+        exact: "/"
+    - uri:
+        prefix: "/record/"
+        # search"
+    #- uri:
+    #    prefix: "/record/add"
+    #- uri:
+    #    prefix: "/record/delete"
+    route:
+    - destination:
+        host: runningrecords-service
+        subset: v1
+        port:
+          number: 3000
+      weight: 30
+    - destination:
+        host: runningrecords-service
+        subset: v2
+        port:
+          number: 3000
+      weight: 70
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: runningrecords-service
+spec:
+  host: runningrecords-service
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+  - name: v2
+    labels:
+      version: v2

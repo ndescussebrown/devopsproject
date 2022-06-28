@@ -1,0 +1,12 @@
+<br><br><br><br><h1>Distance: {{record.distance}} [{{record.id}}]</h1><br>
+<ul class="list-group">
+    <li style="float:left; margin-left:25px;"><strong>Record holder: </strong>{{record.first_name}} {{record.last_name}}</li>
+    <li style="float:left; margin-left:25px;"><strong>Time: </strong>{{record.time}}</li>
+    <li style="float:left; margin-left:25px;"><strong>Location: </strong>{{record.location}}</li>
+    <li style="float:left; margin-left:25px;"><strong>Year: </strong>{{record.year}} </li>
+</ul>
+<br>
+<a class="btn btn-primary" style="float:left; margin-right:12px;" href="/">Back</a>
+<form method="POST" action="/record/delete/{{record.id}}?_method=DELETE">
+    <input type="submit" class="btn btn-danger pull-right" style="float:right; margin-right:12px;" value="Delete">
+</form>
