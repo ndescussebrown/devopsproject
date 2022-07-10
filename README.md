@@ -3,7 +3,7 @@
 Subject: This project was created for the DSTI DevOps class project assignment. 
 Author: Nathalie Descusse-Brown
 Created: 9th May 2022
-Updated: 9th July 2022
+Updated: 10th July 2022
 
 ## Project goals
 
@@ -22,23 +22,25 @@ The goals of the project are to cover the following aspects:
 
 ## Environment
 
-###All part of project
+### All parts of the project:
 Node.js: v14.19.2
 redis: v3.1.2
 
-###For parts 1-6:
+### For parts 1-6:
 OS: Windows 11 Home/Pro
 Linux SubSystem: WSL
 VM: First Ubuntu Desktop 20.04.4 LTS until machine crashed, then replaced by Vagrant Centos/7.
 Vagrant on Ubuntu for Windows: v2.2.6
 Vagrant on Windows: v2.2.19
 
-###For parts 7-8:
+### For parts 7-8:
 OS: Mac OS
 
 ## How to Use the runningrecords app
 
-Just enter a record number in the format 'record00x' where x is a single digit, and press 'search.
+Just enter a record number in the format 'record0xx' where x is a single digit (there are currently only a few records entered), and press 'search'. Once you have found a record, it can be deleted by clicking the 'delete' button on the record page, or you can go back to the homepage by clicking the 'back' button.
+
+You can use the add/update tab to either add or update a record.
 
 
 ## 1. Create a web application
@@ -57,7 +59,7 @@ Automatic tests for the application were added to cover the following:
 - connection
 - API
 
-Unit tests as such were not created as I couldn't figure out how to do them with my controller definition.
+Unit tests as such were not created as unfortunately with my limited node.js knowledge I couldn't figure out how to do them with my controller definition.
 
 I chose to use node.js for the application as I only had knowledge of R and Python before starting the MSc and I wanted to make it challenging and use this project as an opportunity to learn new skills. I followed a number of tutorials (e.g. https://www.youtube.com/watch?v=9S-mphgE5fA) to build a node.js app that connected to redis and followed an MVC model. At this stage, I wanted to build an MVP, and I hope to improve the app in the future with more functionalities (see Section 10).
 
@@ -106,7 +108,7 @@ The Dockerimage was built from the location of the Dockerfile (within my running
 
 ```docker build -t runningrecords .```
 
-The image was subsequently pushed to Docker Hub.
+The image was subsequently pushed to Docker Hub (https://hub.docker.com/repository/docker/ndescusseb77).
 
 ![Docker_build](images/docker_build.jpg)
 
@@ -243,6 +245,33 @@ However I subsequently noticed that the DELETE function of my app was not workin
 
 ## 8. Implement Monitoring to your containerized application
 
+I then tried monitoring of my app with Prometheus and Grafana.
+
+As I had istio addons already installed after running kiali, I just had to run the following commands to set up Prometheus and Grafana services:
+
+```
+kubectl apply -f samples/addons/prometheus.yaml
+samples/addons/grafana.yaml
+```
+
+Then to visualise the Prometheus dashboard:
+
+```
+istioctl dashboard prometheus
+```
+
+It took me to the website locahost:9090 (as Prometheus runs on port 9090) where I could visualise some metrics for my app as can be seen below including the http status 201, showing me my app was healthy:
+
+![prometheus](images/prometheus.jpg)
+
+Similarly I could do some monitoring with Grafana as can be seen below:
+
+![grafana](images/grafana.jpg)
+
+I also tried setting up an alert as per follows:
+
+![grafana_alert](images/grafanaalert.jpg)
+
 ## 9. Issues encountered
 
 ### When running vagrant
@@ -330,9 +359,28 @@ Currently there are no restriction made on the format of the recordID each time 
 ### App versions
 In the future, for the istio part, I will consider making further modifications to the second version of my app to make it more interesting. This time round I wanted to focus on the istio component so decided to keep it the differences minimal whilst obvious to the viewer.
 
+### Docker compose
+Due to lack of time I couldn't modify my docker-compose.yml file (as it would require retesting), but I would have like to improve as per below to specify dependency and sequencing between node-app and redis container:
+
+```
+# version of docker-compose
+version: '3.9'
+# 'services' are equivalent to 'containers'
+services:
+  redis-server:
+    # Use Docker Hub base image 'redis:alpine' 
+    image: 'redis:alpine'
+  node-app:
+    depends-on:
+	  - redis-server
+    build: . 
+    # Specify an array of ports to map
+    ports:
+      - "7777:3000"
+```
+
 ### Docker Desktop memory 
 Due to the memory issue encountered when trying to launch kiali dashboard, I had to up the memory on Docker Desktop from the 4Gb it was running on to 5Gb. I could not do much more than than as my borrowed Mac machine was only 8Gb.
-
 
 ### Environment
 Given the number of issues encountered with my Windows machine and having to constantly try different fixes as documented above, there is little consistency in versions used throughout the project, which makes it messy, although I tried to document the modifications made as best as possible. In future I will perform everything on a Mac to try and minimise the potential occurrences of issues.
