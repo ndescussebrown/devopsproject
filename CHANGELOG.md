@@ -1,3 +1,6 @@
+- docs: added some details for the monitoring section and further instructions for use of the app
+- docs: resized image for legibility
+- docs: updated format of CHANGELOG.md
 - docs: updated README.md and CHANGELOG.md
 - ci: Added istio related files, including different versions of app v1 and v2
 - fix: Fixed issue with delete function in controller
